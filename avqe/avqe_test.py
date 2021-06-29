@@ -13,7 +13,7 @@ alpha_values = np.linspace(0, 1, 11)
 max_depth_values = [np.ceil(1/acc**al) for al in alpha_values]
 
 
-mRange = 50
+mRange = 500
 
 bar = FillingCirclesBar("Running simulation", max = mRange*len(max_depth_values), suffix = '%(percent).2f%% [%(elapsed_td)s]')
 
