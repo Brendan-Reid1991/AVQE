@@ -20,7 +20,7 @@ class Alpha_VQE():
             rejection sampling on
 
     OPTIONAL:
-        accuracy: float : default = 0.001
+        accuracy: float : default = 0.005
             accuracy in result, exit criteria
         alpha : float : default = 0
             alpha parameter, 0 < alpha < 1
@@ -35,10 +35,10 @@ class Alpha_VQE():
 
     Outputs
     -------
-        cos(mu / 2) : float
-            Estimated angle
-        cos(self.phi / 2) : float
-            True angle
+        error : float
+            Absolute error between real and estimated
+        run : int
+            Number of shots taken
 
     Raises
     -------
@@ -136,7 +136,7 @@ class Alpha_VQE():
 
         run = 0
 
-        while self.sigma > self.accuracy:
+        while round(self.sigma, 5) > self.accuracy:
             M = max(1, int(round(1 / self.sigma**self.alpha)))
             theta = mu - self.sigma
 

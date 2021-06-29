@@ -1,5 +1,5 @@
 from numpy.core.fromnumeric import transpose
-from alphaVQE import Alpha_VQE
+from alpha_vqe import Alpha_VQE
 import numpy as np
 import random
 from numpy import pi
@@ -8,7 +8,7 @@ import os
 import pickle
 
 alpha_values = np.linspace(0, 1, 11)
-mRange = 100
+mRange = 500
 
 bar = FillingCirclesBar("Running simulation", max = mRange*len(alpha_values), suffix = '%(percent).2f%% [%(elapsed_td)s]')
 
@@ -17,7 +17,7 @@ for alpha in alpha_values:
     temp = []
     for _ in range(mRange):
         phi = random.uniform(-pi, pi)
-        a = Alpha_VQE(phi=phi, nSamples=100, alpha = alpha)
+        a = Alpha_VQE(phi=phi, nSamples=100, alpha = alpha, rescaled=1)
         max_shots = a.get_max_shots()
         err, run = a.estimate_phase()
         temp.append([err, run, max_shots])
