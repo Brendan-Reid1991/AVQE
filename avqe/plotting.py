@@ -17,25 +17,23 @@ legend_size = 15
 def transpose(L):
     return(list(map(list,zip(*L))))
 
-bare = open("data_test", "rb")
+bare = open("data_test_avqe", "rb")
 data = pickle.load(bare)
 
-# rescaled = open("data_test_rescaled", "rb")
-# data_rescaled = pickle.load(rescaled)
 
-alphas, errs, runs = transpose(data)
+max_depths, errs, runs = transpose(data)
 
-plt.plot(alphas, errs, linewidth = 2, color = colours[0])
-plt.plot(alphas, [0.005]*len(errs), '--', linewidth = 1.5, color = 'gray')
+plt.plot(max_depths, errs, linewidth = 2, color = colours[0])
+plt.plot(max_depths, [0.005]*len(errs), '--', linewidth = 1.5, color = 'gray')
 plt.xticks(size = tick_size)
 plt.yticks(size = tick_size)
 
 plt.ylabel(r'$|\phi - \mu|^2$', fontsize = label_size)
-plt.xlabel(r'$\alpha$', fontsize = label_size)
-plt.legend(fontsize = legend_size)
-plt.xlim(0, 1)
+plt.xlabel(r'$D$', fontsize = label_size)
+# plt.legend(fontsize = legend_size)
+# plt.xlim(0, 1)
 
 plt.grid(True)
-plt.savefig('alpha_v_err.png', bbox_inches='tight')
+plt.savefig('max_depth_v_err.png', bbox_inches='tight')
 plt.clf()
 
