@@ -10,7 +10,7 @@ from numpy.core.fromnumeric import transpose
 
 acc = 0.001
 alpha_values = np.linspace(0, 1, 11)
-max_depth_values = [np.ceil(1/acc**al) for al in alpha_values]
+max_depth_values = [np.ceil(1/acc**al) + 1 for al in alpha_values]
 
 # a = AVQE(phi = 0.8 * pi, max_m=1, max_shots=2*10**6)
 # print(a.estimate_phase())
