@@ -1,6 +1,7 @@
 import random
 import numpy as np
-from numpy import pi, exp, cos, log
+from numpy import pi
+from math import cos, sin, log, exp
 import warnings
 import pickle
 
@@ -46,7 +47,7 @@ class Alpha_VQE():
     VALUEERROR for alpha <0 or >1
     """
 
-    def __init__(self, phi, nSamples, accuracy=10**-3, alpha=0, sigma=pi/4, max_shots=10**4, rescaled=0):
+    def __init__(self, phi, nSamples, accuracy=5*10**-3, alpha=0, sigma=pi/4, max_shots=10**4, rescaled=0, exact = 0):
         self.phi = phi
         self.nSamples = nSamples
         self.accuracy = accuracy
@@ -54,6 +55,7 @@ class Alpha_VQE():
         self.sigma = sigma
         self.max_shots = max_shots
         self.rescaled = rescaled
+        self.exact = exact
 
         if self.rescaled not in [0, 1]:
             raise ValueError("Rescaled keyword for rejection sampling" +
@@ -131,6 +133,32 @@ class Alpha_VQE():
 
         return(mu, sigma)
 
+    def update_exact(self,
+                mu, M, theta, measurement_result
+                ):
+        "Exact update of the prior distribution"
+        d = measurement_result
+
+        Expectation = mu + ((1-2*d) * M * self.sigma**2 * sin(M*(theta - mu))) / \
+            (exp(M**2 * self.sigma**2 / 2) + (1-2*d) * cos(M*(theta-mu)))
+
+        VarNum = 2 * exp(M**2 * self.sigma**2) + (
+            2 * (2*d - 1) * exp(M**2 * self.sigma**2 / 2) *
+            ((M**2 * self.sigma**2) - 2) * cos(M*(theta - mu))
+        ) + (
+            (1 - 2*d)**2 * (1 - (2 * M**2 * self.sigma**2) + cos(2*M*(theta - mu)))
+        )
+
+        VarDenom = 2 * (
+            exp(M**2 * self.sigma**2 / 2) + (1 - 2*d) * cos(M*(theta - mu))
+        )**2
+
+        Variance = self.sigma**2 * (VarNum / VarDenom)
+
+        Std = np.sqrt(Variance)
+
+        return(Expectation, Std)
+
     def estimate_phase(self):
         mu = random.uniform(-pi, pi)
 
@@ -149,12 +177,16 @@ class Alpha_VQE():
             else:
                 measurement_result = 1
 
-            if self.rescaled == 0:
-                mu, sigma = self.update_prior(
-                    M, theta, measurement_result, prior_samples)
+            if self.exact == 1:
+                mu, sigma = self.update_exact(mu, M, theta, measurement_result)
+            
             else:
-                mu, sigma = self.update_prior_rescaled(
-                    M, theta, measurement_result, prior_samples)
+                if self.rescaled == 0:
+                    mu, sigma = self.update_prior(
+                        M, theta, measurement_result, prior_samples)
+                else:
+                    mu, sigma = self.update_prior_rescaled(
+                        M, theta, measurement_result, prior_samples)
 
             self.sigma = sigma
 
