@@ -29,10 +29,11 @@ class Alpha_VQE():
             initial variance
         max_shots : int : default = 10000
             maximum number of runs to do
-        rescaled : int : default = 0
-            two similar but different
-            rejection sampling methods
-            Ours is rescaled = 0
+        update : int : default = 1
+            Our method is update = 0
+            Rescaled method from arxiv:1506.00869
+                is update = 1
+            Exact is update = 2
 
     Outputs
     -------
@@ -47,19 +48,25 @@ class Alpha_VQE():
     VALUEERROR for alpha <0 or >1
     """
 
-    def __init__(self, phi, nSamples, accuracy=5*10**-3, alpha=0, sigma=pi/4, max_shots=10**4, rescaled=0, exact = 0):
+    def __init__(self, phi, nSamples, 
+                accuracy=5*10**-3, 
+                alpha=0, 
+                sigma=pi/4, 
+                max_shots=10**4, 
+                update=1
+        ):
+        
         self.phi = phi
         self.nSamples = nSamples
         self.accuracy = accuracy
         self.alpha = alpha
         self.sigma = sigma
         self.max_shots = max_shots
-        self.rescaled = rescaled
-        self.exact = exact
+        self.update = update
 
-        if self.rescaled not in [0, 1]:
-            raise ValueError("Rescaled keyword for rejection sampling" +
-                             "process must be 0 or 1")
+        if self.update not in [0, 1, 2]:
+            raise ValueError("Update keyword for rejection sampling" +
+                             "process must be 0, 1 or 2")
 
         if self.alpha < 0 or self.alpha > 1:
             raise ValueError("Alpha must lie between 0 and 1")
@@ -96,6 +103,9 @@ class Alpha_VQE():
     def update_prior(self,
                      M, theta, measurement_result, prior_samples
                      ):
+        """Simple prior update method
+        """
+
         accepted = []
 
         for s in prior_samples:
@@ -111,8 +121,13 @@ class Alpha_VQE():
         return(mu, sigma)
 
     def update_prior_rescaled(self,
-                                  M, theta, measurement_result, prior_samples
-                                  ):
+                              M, theta, measurement_result, prior_samples
+                              ):
+        """Prior update method from 
+        arxiv:1506.00869. Same as 
+        update_prior but 
+        probabilities rescaled.
+        """
         accepted = []
 
         max_prob = 0
@@ -134,8 +149,14 @@ class Alpha_VQE():
         return(mu, sigma)
 
     def update_exact(self,
-                mu, M, theta, measurement_result
-                ):
+                     mu, M, theta, measurement_result
+                     ):
+        """qshfkjgfkjagfkwjf
+        qefqefj
+        qefqjfqejf
+
+
+        """
         "Exact update of the prior distribution"
         d = measurement_result
 
@@ -168,8 +189,6 @@ class Alpha_VQE():
             M = max(1, int(round(1 / self.sigma**self.alpha)))
             theta = mu - self.sigma
 
-            prior_samples = np.random.normal(mu, self.sigma, self.nSamples)
-
             prob_0 = self.probability(0, M, theta, self.phi)
 
             if random.uniform(0, 1) < prob_0:
@@ -177,16 +196,20 @@ class Alpha_VQE():
             else:
                 measurement_result = 1
 
-            if self.exact == 1:
-                mu, sigma = self.update_exact(mu, M, theta, measurement_result)
-            
+            if self.update == 0:
+                prior_samples = np.random.normal(mu, self.sigma, self.nSamples)
+
+                mu, sigma = self.update_prior(
+                    M, theta, measurement_result, prior_samples)
+
+            elif self.update == 1:
+                prior_samples = np.random.normal(mu, self.sigma, self.nSamples)
+
+                mu, sigma = self.update_prior_rescaled(
+                    M, theta, measurement_result, prior_samples)
+
             else:
-                if self.rescaled == 0:
-                    mu, sigma = self.update_prior(
-                        M, theta, measurement_result, prior_samples)
-                else:
-                    mu, sigma = self.update_prior_rescaled(
-                        M, theta, measurement_result, prior_samples)
+                mu, sigma = self.update_exact(mu, M, theta, measurement_result)
 
             self.sigma = sigma
 
