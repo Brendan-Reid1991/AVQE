@@ -18,7 +18,7 @@ for al in alpha_values:
     temp = []
     for _ in range(mRange):
         phi = random.uniform(-pi, pi)
-        a = Alpha_VQE(phi=phi, nSamples=1, alpha = 0.5, update = 2)
+        a = Alpha_VQE(phi=phi, nSamples=1, alpha = al, update = 2, max_shots=2*10**6)
         err, run = a.estimate_phase()
         temp.append([err, run])
         bar.next()
