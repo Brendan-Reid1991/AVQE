@@ -19,7 +19,7 @@ legend_size = 15
 def transpose(L):
     return(list(map(list,zip(*L))))
 
-alpha_values = np.linspace(0, 1, 11)
+alpha_values = np.linspace(0, 1, 21)
 sample_sizes = [100, 250, 500, 750, 1000]
 
 sample_size_errs = []
@@ -35,9 +35,9 @@ for ss in sample_sizes:
 in_exact = open("alpha-VQE/data/alpha_exact_alpha", "rb")
 in_exact_loaded = pickle.load(in_exact)
 
-errs_exact, runs_exact = transpose(in_exact_loaded)[0], transpose(in_exact_loaded)[1]
+# errs_exact, runs_exact = transpose(in_exact_loaded)[0], transpose(in_exact_loaded)[1]
 
-plt.plot(alpha_values, errs_exact, linewidth = 2, color = "gray", label = "Exact")
+# plt.plot(alpha_values, errs_exact, linewidth = 2, color = "gray", label = "Exact")
 for idx, ss in enumerate(sample_sizes):
     plt.plot(alpha_values, sample_size_errs[idx], linewidth = 2, color = colours[idx], label = "%s"%ss)
 
@@ -51,22 +51,6 @@ plt.xlabel(r'$\alpha$', fontsize = label_size)
 plt.legend(fontsize = legend_size, title = "Sample Sizes")
 plt.savefig("alpha-VQE/plots/Increasing_Sample_Size_Errors.pdf", bbox_inches = 'tight')
 plt.clf()
-
-
-
-
-# for idx, ss in enumerate(sample_sizes):
-#     plt.plot(alpha_values, sample_size_runs[idx], linewidth = 2, color = colours[idx], label = "%s"%ss)
-# plt.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
-
-
-# plt.grid(True)
-# plt.xticks(size = tick_size)
-# plt.yticks(size = tick_size)
-# plt.ylabel(r'Runs', fontsize = label_size)
-# plt.xlabel(r'$\alpha$', fontsize = label_size)
-# plt.legend(fontsize = legend_size, title = "Sample Sizes")
-# plt.savefig("Increasing_Sample_Size_Runs.png", bbox_inches = 'tight')
 
 
 def eq1(pre, alpha):
@@ -83,7 +67,7 @@ for al in alpha_values:
     )
 
 fig, ax = plt.subplots(figsize=[5, 4])
-ax.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
+# ax.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
 ax.plot(alpha_values, formula, '--', linewidth = 1.5, color = "gray", label = "EQ1", alpha = 0.75)
 ax.grid(True)
 for idx, ss in enumerate(sample_sizes):
@@ -91,7 +75,7 @@ for idx, ss in enumerate(sample_sizes):
 
 axins = ax.inset_axes([0.5, 0.5, 0.47, 0.47])
 
-axins.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
+# axins.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
 
 
 for idx, ss in enumerate(sample_sizes):
