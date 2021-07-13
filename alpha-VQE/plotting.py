@@ -35,9 +35,9 @@ for ss in sample_sizes:
 in_exact = open("alpha-VQE/data/alpha_exact_alpha", "rb")
 in_exact_loaded = pickle.load(in_exact)
 
-# errs_exact, runs_exact = transpose(in_exact_loaded)[0], transpose(in_exact_loaded)[1]
+errs_exact, runs_exact = transpose(in_exact_loaded)[0], transpose(in_exact_loaded)[1]
 
-# plt.plot(alpha_values, errs_exact, linewidth = 2, color = "gray", label = "Exact")
+plt.plot(alpha_values, errs_exact, linewidth = 2, color = "gray", label = "Exact")
 for idx, ss in enumerate(sample_sizes):
     plt.plot(alpha_values, sample_size_errs[idx], linewidth = 2, color = colours[idx], label = "%s"%ss)
 
@@ -67,7 +67,7 @@ for al in alpha_values:
     )
 
 fig, ax = plt.subplots(figsize=[5, 4])
-# ax.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
+ax.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
 ax.plot(alpha_values, formula, '--', linewidth = 1.5, color = "gray", label = "EQ1", alpha = 0.75)
 ax.grid(True)
 for idx, ss in enumerate(sample_sizes):
@@ -75,7 +75,7 @@ for idx, ss in enumerate(sample_sizes):
 
 axins = ax.inset_axes([0.5, 0.5, 0.47, 0.47])
 
-# axins.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
+axins.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
 
 
 for idx, ss in enumerate(sample_sizes):

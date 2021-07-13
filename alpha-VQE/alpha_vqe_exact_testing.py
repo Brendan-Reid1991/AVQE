@@ -7,9 +7,9 @@ from progress.bar import FillingCirclesBar, FillingSquaresBar
 import os
 import pickle
 
-alpha_values = np.linspace(0, 1, 21)
+alpha_values = np.linspace(0.5, 1, 21)
 sample_sizes = [100, 250, 500, 750, 1000]
-mRange = 500
+mRange = 5
 
 bar = FillingSquaresBar("Running exact simulation", max = mRange*len(alpha_values), suffix = '%(percent).2f%% [%(elapsed_td)s]')
 

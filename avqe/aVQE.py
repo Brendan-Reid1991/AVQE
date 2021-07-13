@@ -21,7 +21,7 @@ class AVQE():
     REQUIRED:
         phi : float 
             phase value to estimate
-        max_depth : int
+        max_unitaries : int
             maximum value of M (unitary repetitions)
 
     OPTIONAL:
@@ -45,26 +45,30 @@ class AVQE():
 
     """
 
-    def __init__(self, phi, max_depth, accuracy=5*10**-3, sigma=pi/4, max_shots=10**4):
+    def __init__(self, phi, max_unitaries,
+                 accuracy=10**-3,
+                 sigma=pi/4,
+                 max_shots=10**4):
+
         self.phi = phi
-        self.max_depth = max_depth
+        self.max_unitaries = max_unitaries
         self.accuracy = accuracy
         self.sigma = sigma
         self.max_shots = max_shots
 
         if self.accuracy < 10**-5:
-            warnings.warn(f"Accuracy goal set extremely low;" +
+            warnings.warn(f"Accuracy goal set extremely low;"
                           " will likely hit max_shots before convergence.")
 
         if self.sigma > 2*pi:
-            warnings.warn(f"Initial variance is high," +
+            warnings.warn(f"Initial variance is high,"
                           " will likely hit max_shots before convergence.")
 
     def get_max_shots(self):
         "Get the theoretical maximum number of required shots"
-        if self.max_depth < 1/self.accuracy:
-            n_max = (2 / (1 - log(self.max_depth)/log(1/self.accuracy))) * \
-                (1 / (self.accuracy * self.max_depth)**2 - 1)
+        if self.max_unitaries < 1/self.accuracy:
+            n_max = (2 / (1 - log(self.max_unitaries)/log(1/self.accuracy))) * \
+                (1 / (self.accuracy * self.max_unitaries)**2 - 1)
         else:
             n_max = 4*log(1/self.accuracy)
         return(np.ceil(n_max))
@@ -72,7 +76,7 @@ class AVQE():
     def get_alpha(self):
         "Get the value of alpha from max_depth for alpha-VQE comparison"
         return(
-            min(1, -log(self.max_depth) / log(self.accuracy))
+            min(1, -log(self.max_unitaries) / log(self.accuracy))
         )
 
     def probability(self, measurement_result, M, theta, phi):
@@ -108,7 +112,6 @@ class AVQE():
         return(Expectation, Std)
 
     def estimate_phase(self):
-        
         "Estimate the phase value by simulating the circuit"
 
         theory_max_shots = self.get_max_shots()
@@ -120,14 +123,12 @@ class AVQE():
         mu = random.uniform(-pi, pi)
         run = 0
         theta = 0
-        
-        while round(self.sigma, 5) > self.accuracy:
-            
-            M = min(
-                max(1, int(round(1 / self.sigma))), self.max_depth
-            )
 
-            
+        while round(self.sigma, 5) > self.accuracy:
+
+            M = min(
+                max(1, int(round(1 / self.sigma))), self.max_unitaries
+            )
 
             prob_0 = self.probability(0, M, theta, self.phi)
 
@@ -136,11 +137,10 @@ class AVQE():
             else:
                 measurement_result = 1
 
-            
             mu, sigma = self.update_prior(mu, M, theta, measurement_result)
-            
+
             self.sigma = sigma
-            
+
             run += 1
             if run > self.max_shots:
                 # print(f"Maximum number of runs {self.max_shots} reached; exiting routine.")
