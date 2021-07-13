@@ -24,17 +24,14 @@ for max_d in max_depth_values:
     
     failures = 0
     solutions = 0
-    
-    theoretical_max = AVQE(phi=0, max_unitaries=max_d).get_max_shots()
-    practical_max = np.ceil(1.1 * theoretical_max)
 
     while solutions < mRange:
         phi = random.uniform(-pi, pi)
 
-        b = AVQE(phi=phi, max_unitaries=max_d, max_shots=practical_max)
-        err, run = b.estimate_phase()
+        b = AVQE(phi=phi, max_unitaries=max_d)
+        err, run, f = b.estimate_phase()
         
-        if run > practical_max:
+        if f == 1:
             # print(f"Failure; err {err}")
             failures += 1
             continue
@@ -50,5 +47,5 @@ for max_d in max_depth_values:
     )
 # bar.finish()
 # print(results)
-f = open("data/avqe_test_acc_%s"%acc, "wb")
+f = open("avqe/data/avqe_test_acc_%s"%acc, "wb")
 pickle.dump(results, f)

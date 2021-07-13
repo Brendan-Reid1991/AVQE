@@ -46,15 +46,17 @@ class AVQE():
     """
 
     def __init__(self, phi, max_unitaries,
-                 accuracy=10**-3,
+                 accuracy=5*10**-3,
                  sigma=pi/4,
-                 max_shots=10**4):
+                 max_shots=10**5):
 
         self.phi = phi
         self.max_unitaries = max_unitaries
         self.accuracy = accuracy
         self.sigma = sigma
         self.max_shots = max_shots
+        
+        self.true_value = abs(cos(self.phi/2))
 
         if self.accuracy < 10**-5:
             warnings.warn(f"Accuracy goal set extremely low;"
@@ -115,19 +117,22 @@ class AVQE():
         "Estimate the phase value by simulating the circuit"
 
         theory_max_shots = self.get_max_shots()
+        
         if theory_max_shots > self.max_shots:
             warnings.warn(f"Required number of measurements for chosen accuracy is {theory_max_shots}," +
                           f" whereas maximum is currently set to {self.max_shots}."
                           )
 
+
         mu = random.uniform(-pi, pi)
         run = 0
         theta = 0
+        failed = 0
 
         while round(self.sigma, 5) > self.accuracy:
 
             M = min(
-                max(1, int(round(1 / self.sigma))), self.max_unitaries
+                max(1, np.floor(1/2 + 1/self.sigma)), self.max_unitaries
             )
 
             prob_0 = self.probability(0, M, theta, self.phi)
@@ -142,18 +147,17 @@ class AVQE():
             self.sigma = sigma
 
             run += 1
-            if run > self.max_shots:
+            if run > np.ceil(1/self.accuracy**2):
+                failed = 1
                 # print(f"Maximum number of runs {self.max_shots} reached; exiting routine.")
                 break
 
         estimated = abs(cos(mu/2))
 
-        true = abs(cos(self.phi/2))
-
-        error = abs(estimated - true)
+        error = abs(estimated - self.true_value)
 
         return(
-            error, run
-            # f"  Value estimated: {estimated:.5f}\n  True value: {true:.5f}"
+            error, run, failed
+            # f"  Value estimated: {estimated:.5f}\n  True value: {self.true_value:.5f}"
             # +f"\n  Error: {error:.5f}\n  Number of runs: {run}"
         )
