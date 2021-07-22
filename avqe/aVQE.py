@@ -31,6 +31,8 @@ class AVQE():
             initial variance
         max_shots : int : default = 10000
             maximum number of circuit measurements to do
+        state : int : default = 0
+            0 == collapsed and 1 == superposition
 
     Outputs
     -------
@@ -38,6 +40,9 @@ class AVQE():
             Absolute error between real and estimated
         run : int
             Number of shots taken
+        failed : int
+            Number of runs that failed
+            to converge
 
     Raises
     -------
@@ -48,15 +53,23 @@ class AVQE():
     def __init__(self, phi, max_unitaries,
                  accuracy=5*10**-3,
                  sigma=pi/4,
-                 max_shots=10**5):
+                 max_shots=10**5,
+                 state=0):
 
         self.phi = phi
         self.max_unitaries = max_unitaries
         self.accuracy = accuracy
         self.sigma = sigma
         self.max_shots = max_shots
-        
+
+        self.state = state
+
         self.true_value = abs(cos(self.phi/2))
+
+        if self.state not in [0, 1]:
+            raise ValueError(
+                "State variable must be 0 (collapsed) or 1 (superposition)."
+            )
 
         if self.accuracy < 10**-5:
             warnings.warn(f"Accuracy goal set extremely low;"
@@ -83,29 +96,53 @@ class AVQE():
 
     def probability(self, measurement_result, M, theta, phi):
         "Get outcome probability from circuit"
-        return(
-            1/2 + (1 - 2*measurement_result) * cos(M * theta) * cos(M * phi)/2
-        )
+        if self.state == 0:
+            return(
+                1/2 + (1 - 2*measurement_result) * cos(M * (theta - phi)) / 2
+            )
+        else:
+            return(
+                1/2 + (1 - 2*measurement_result) *
+                cos(M * theta) * cos(M * phi) / 2
+            )
 
     def update_prior(self,
                      mu, M, theta, measurement_result
                      ):
-        "Exact update of the prior distribution"
+
         d = measurement_result
 
-        Expectation = mu + ((1-2*d) * M * self.sigma**2 * sin(M*(theta - mu))) / \
-            (exp(M**2 * self.sigma**2 / 2) + (1-2*d) * cos(M*(theta-mu)))
+        if self.state == 0:
+            Expectation = mu + ((1-2*d) * M * self.sigma**2 * sin(M*(theta - mu))) / \
+                (exp(M**2 * self.sigma**2 / 2) + (1-2*d) * cos(M*(theta-mu)))
 
-        VarNum = 2 * exp(M**2 * self.sigma**2) + (
-            2 * (2*d - 1) * exp(M**2 * self.sigma**2 / 2) *
-            ((M**2 * self.sigma**2) - 2) * cos(M*(theta - mu))
-        ) + (
-            (1 - 2*d)**2 * (1 - (2 * M**2 * self.sigma**2) + cos(2*M*(theta - mu)))
-        )
+            VarNum = 2 * exp(M**2 * self.sigma**2) + (
+                2 * (2*d - 1) * exp(M**2 * self.sigma**2 / 2) *
+                ((M**2 * self.sigma**2) - 2) * cos(M*(theta - mu))
+            ) + (
+                (1 - 2*d)**2 * (1 - (2 * M**2 * self.sigma**2) + cos(2*M*(theta - mu)))
+            )
 
-        VarDenom = 2 * (
-            exp(M**2 * self.sigma**2 / 2) + (1 - 2*d) * cos(M*(theta - mu))
-        )**2
+            VarDenom = 2 * (
+                exp(M**2 * self.sigma**2 / 2) + (1 - 2*d) * cos(M*(theta - mu))
+            )**2
+        else:
+            Expectation = mu - ((1-2*d)*M*self.sigma**2 * sin(M*mu)) / (
+                exp(M**2 * self.sigma**2 / 2) + (1-2*d)*cos(M*mu))
+
+            VarNum = exp(M**2 * self.sigma**2) + (d - 1/2)*(
+                (
+                    2*exp(M**2 * self.sigma**2 / 2) *
+                    ((M**2 * self.sigma**2) - 2) * cos(M*mu)
+                ) + (2*d - 1) * (
+                    1 - (2 * M**2 * self.sigma**2) + cos(2*M*mu)
+                )
+            )
+
+            VarDenom = (
+                exp(M**2 * self.sigma**2 / 2) +
+                (1 - 2*d)*cos(M*mu)
+            )**2
 
         Variance = self.sigma**2 * (VarNum / VarDenom)
 
@@ -117,16 +154,15 @@ class AVQE():
         "Estimate the phase value by simulating the circuit"
 
         theory_max_shots = self.get_max_shots()
-        
+
         if theory_max_shots > self.max_shots:
             warnings.warn(f"Required number of measurements for chosen accuracy is {theory_max_shots}," +
                           f" whereas maximum is currently set to {self.max_shots}."
                           )
 
-
         mu = random.uniform(-pi, pi)
         run = 0
-        theta = 0
+        theta = mu - self.sigma
         failed = 0
 
         while round(self.sigma, 5) > self.accuracy:
@@ -145,9 +181,10 @@ class AVQE():
             mu, sigma = self.update_prior(mu, M, theta, measurement_result)
 
             self.sigma = sigma
+            theta = mu - self.sigma
 
             run += 1
-            if run > np.ceil(1/self.accuracy**2):
+            if run > self.max_shots:
                 failed = 1
                 # print(f"Maximum number of runs {self.max_shots} reached; exiting routine.")
                 break
@@ -158,6 +195,6 @@ class AVQE():
 
         return(
             error, run, failed
-            # f"  Value estimated: {estimated:.5f}\n  True value: {self.true_value:.5f}"
-            # +f"\n  Error: {error:.5f}\n  Number of runs: {run}"
         )
+
+

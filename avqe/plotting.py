@@ -19,15 +19,21 @@ legend_size = 15
 def transpose(L):
     return(list(map(list,zip(*L))))
 
-bare = open("data_test_avqe", "rb")
+bare = open("avqe/data/avqe_test_acc_0.005", "rb")
 data = pickle.load(bare)
 
-depths, errs, runs = transpose(data)
-alpha_values = np.linspace(0, 1, 11)
+depths, errs, runs, failures = transpose(data)
+
+failure_pct = []
+for val in failures:
+    f_pct = 100*val / (val + 1000) 
+    failure_pct.append(f_pct)
+
+alpha_values = np.linspace(0, 1, 21)
 max_shots = []
 for al in alpha_values:
     md = np.ceil(1/0.005**al)
-    ms = AVQE(phi = 0, max_depth = md).get_max_shots()
+    ms = AVQE(phi = 0, max_unitaries = md).get_max_shots()
     max_shots.append(ms)
 
 plt.plot(depths, errs, linewidth = 2, color = colours[0])
@@ -39,11 +45,11 @@ plt.yticks(size = tick_size)
 
 plt.ylabel(r'$|\phi - \mu|^2$', fontsize = label_size)
 plt.xlabel(r'$D$', fontsize = label_size)
-plt.legend(fontsize = legend_size)
+# plt.legend(fontsize = legend_size)
 
 
 plt.grid(True)
-plt.savefig('avqe_vs_error.png', bbox_inches='tight')
+plt.savefig('avqe/plots/avqe_vs_error.png', bbox_inches='tight')
 plt.clf()
 
 plt.plot(depths, runs, linewidth = 2, color = colours[0], label = "Numerics")
@@ -58,5 +64,21 @@ plt.xlabel(r'$D$', fontsize = label_size)
 plt.legend(fontsize = legend_size)
 
 plt.grid(True)
-plt.savefig('avqe_vs_runs.png', bbox_inches='tight')
+plt.savefig('avqe/plots/avqe_vs_runs.png', bbox_inches='tight')
+plt.clf()
+
+
+
+plt.plot(depths, failure_pct, linewidth = 2, color = colours[0])
+plt.xticks(size = tick_size)
+plt.yticks(size = tick_size)
+
+# plt.yscale("log")
+
+plt.ylabel(r'Failure Rate %', fontsize = label_size)
+plt.xlabel(r'$D$', fontsize = label_size)
+# plt.legend(fontsize = legend_size)
+
+plt.grid(True)
+plt.savefig('avqe/plots/avqe_failures.png', bbox_inches='tight')
 plt.clf()

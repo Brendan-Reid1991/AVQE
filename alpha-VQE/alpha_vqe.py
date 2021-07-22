@@ -151,12 +151,6 @@ class Alpha_VQE():
     def update_exact(self,
                      mu, M, theta, measurement_result
                      ):
-        """qshfkjgfkjagfkwjf
-        qefqefj
-        qefqjfqejf
-
-
-        """
         "Exact update of the prior distribution"
         d = measurement_result
 
@@ -184,6 +178,7 @@ class Alpha_VQE():
         mu = random.uniform(-pi, pi)
 
         run = 0
+        failed = 0
 
         while round(self.sigma, 5) > self.accuracy:
             M = max(1, int(round(1 / self.sigma**self.alpha)))
@@ -215,6 +210,7 @@ class Alpha_VQE():
 
             run += 1
             if run > self.max_shots:
+                failed = 1
                 # print(
                 # f"Maximum number of runs {self.max_shots} reached; exiting routine.")
                 break
@@ -225,7 +221,7 @@ class Alpha_VQE():
 
         error = abs(estimated - true)
 
-        return(error, run)
+        return(error, run, failed)
         # return(
         #     f"  Value estimated: {estimated:.5f}\n  True value: {true:.5f}"
         #     + f"\n  Error: {error:.5f}\n  Number of runs: {run}"
