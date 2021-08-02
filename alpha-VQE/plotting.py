@@ -20,7 +20,7 @@ def transpose(L):
     return(list(map(list,zip(*L))))
 
 alpha_values = np.linspace(0, 1, 21)
-sample_sizes = [100, 250, 500, 750, 1000]
+sample_sizes = [100, 500, 1000]
 
 sample_size_errs = []
 sample_size_runs = []
@@ -73,21 +73,21 @@ ax.grid(True)
 for idx, ss in enumerate(sample_sizes):
     ax.plot(alpha_values, sample_size_runs[idx], linewidth = 2, color = colours[idx], label = "%s"%ss)
 
-axins = ax.inset_axes([0.5, 0.5, 0.47, 0.47])
+# axins = ax.inset_axes([0.5, 0.5, 0.47, 0.47])
 
-axins.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
+# axins.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
 
 
-for idx, ss in enumerate(sample_sizes):
-    axins.plot(alpha_values, sample_size_runs[idx], linewidth = 2, color = colours[idx], label = "%s"%ss)
+# for idx, ss in enumerate(sample_sizes):
+#     axins.plot(alpha_values, sample_size_runs[idx], linewidth = 2, color = colours[idx], label = "%s"%ss)
 
 
 x_ticks = (0, 0.25, 0.5, 0.75, 1)
 y_ticks = (0, 1000,2000,3000,4000,5000)
 # exit()
-axins.grid(True)
-axins.set_xlim(0, 1)
-axins.set_ylim(0, 5000)
+# axins.grid(True)
+# axins.set_xlim(0, 1)
+# axins.set_ylim(0, 5000)
 # axins.set_xticks(x_ticks)
 # axins.set_yticks(y_ticks)
 # axins.set_xticklabels('')
@@ -96,8 +96,40 @@ axins.set_ylim(0, 5000)
 plt.grid(True)
 plt.xticks(size = tick_size)
 plt.yticks(size = tick_size)
+plt.yscale("log")
 plt.ylabel(r'No. of Updates', fontsize = label_size)
 plt.xlabel(r'$\alpha$', fontsize = label_size)
 plt.legend(fontsize = legend_size, title = "Sample Sizes", title_fontsize = legend_title_size, bbox_to_anchor=(1.05, 1), loc='upper left')
 
 fig.savefig("alpha-VQE/plots/Increasing_Sample_Size_Runs.pdf", bbox_inches = 'tight')
+plt.clf()
+
+
+in_exact = open("alpha-VQE/data/alpha_exact_alpha_new_M", "rb")
+in_exact_loaded = pickle.load(in_exact)
+errs_exactM, runs_exactM = transpose(in_exact_loaded)[0], transpose(in_exact_loaded)[1]
+
+
+plt.plot(alpha_values, errs_exact, linewidth = 2, color = "gray", label = "Exact")
+plt.plot(alpha_values, errs_exactM,  linewidth = 2, color = "black", label = "Exact_Alt")
+
+plt.grid(True)
+plt.xticks(size = tick_size)
+plt.yticks(size = tick_size)
+plt.ylabel(r'$|\phi - \mu|$', fontsize = label_size)
+plt.xlabel(r'$\alpha$', fontsize = label_size)
+plt.legend(fontsize = legend_size, title = "")
+plt.savefig("alpha-VQE/plots/Exact_Errors_Compare.pdf", bbox_inches = 'tight')
+plt.clf()
+
+plt.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
+plt.plot(alpha_values, runs_exactM, linewidth = 2, color = "black", label = "Exact_Alt")
+
+plt.grid(True)
+plt.xticks(size = tick_size)
+plt.yticks(size = tick_size)
+plt.ylabel(r'$|\phi - \mu|$', fontsize = label_size)
+plt.xlabel(r'$\alpha$', fontsize = label_size)
+plt.legend(fontsize = legend_size, title = "")
+plt.savefig("alpha-VQE/plots/Exact_Runs_Compare.pdf", bbox_inches = 'tight')
+plt.clf()

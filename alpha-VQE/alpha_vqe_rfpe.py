@@ -180,8 +180,8 @@ class Alpha_VQE():
         run = 0
         failed = 0
 
-        while round(self.sigma, 5) > self.accuracy:
-            M = max(1, int(round(1 / self.sigma**self.alpha)))
+        while self.sigma > self.accuracy:
+            M = max(1, int(np.ceil(1.25 / self.sigma**self.alpha)))
             theta = mu - self.sigma
 
             prob_0 = self.probability(0, M, theta, self.phi)
@@ -226,14 +226,15 @@ class Alpha_VQE():
         #     f"  Value estimated: {estimated:.5f}\n  True value: {true:.5f}"
         #     + f"\n  Error: {error:.5f}\n  Number of runs: {run}"
         # )
-
+    
     def run_experiment(self, experiment_number):
         mu = random.uniform(-pi, pi)
 
         run = 0
         data = []
         while run < experiment_number:
-            M = int(np.round(1/self.sigma**self.alpha))
+            M = max(1, np.ceil(1.25 / self.sigma**self.alpha))
+            
             theta = mu - self.sigma
 
             prob_0 = self.probability(0, M, theta, self.phi)
@@ -271,4 +272,4 @@ class Alpha_VQE():
             run += 1
 
         return(data)
-# print(Alpha_VQE(phi=0, nSamples = 100, alpha = 0.1).get_max_shots())
+

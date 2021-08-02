@@ -11,9 +11,9 @@ class AVQE():
     - exact updates instead of rejection sampling
     - different probability function to represent
         no collapse process
-    - alpha has been removed and replaced with max_depth;
+    - alpha has been removed and replaced with max_unitaries;
         the maximum number of times 
-        the untiary U can be applied
+        the unitary U can be applied
 
 
     Inputs

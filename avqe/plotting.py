@@ -19,7 +19,8 @@ legend_size = 15
 def transpose(L):
     return(list(map(list,zip(*L))))
 
-bare = open("avqe/data/avqe_test_acc_0.005", "rb")
+
+bare = open("avqe/data/avqe_col_err_run_v_alpha", "rb")
 data = pickle.load(bare)
 
 depths, errs, runs, failures = transpose(data)
@@ -81,4 +82,67 @@ plt.xlabel(r'$D$', fontsize = label_size)
 
 plt.grid(True)
 plt.savefig('avqe/plots/avqe_failures.png', bbox_inches='tight')
+plt.clf()
+
+sigma_errs = []
+sigma_runs = []
+sigma_failures = []
+
+fracs = [2,4,8,16]
+
+for x in fracs:
+    bare = open("avqe/data/avqe_failure_sig_pi-%s"%x, "rb")
+
+    data = pickle.load(bare)
+    _void, errs, runs, fails = transpose(data)
+
+    sigma_errs.append(errs)
+    sigma_runs.append(runs)
+    sigma_failures.append(fails)
+
+for idx, ele in enumerate(sigma_errs):
+    plt.plot(depths, ele, linewidth = 2, color = colours[idx], label = r"$\pi$"+"/%s"%fracs[idx])
+plt.xticks(size = tick_size)
+plt.yticks(size = tick_size)
+
+plt.ylabel(r'$|\phi - \mu|$', fontsize = label_size)
+plt.xlabel(r'$D$', fontsize = label_size)
+plt.legend(fontsize = legend_size)
+
+plt.ylim(5*10**-4, 1.5*10**-3)
+
+plt.grid(True)
+plt.savefig('avqe/plots/avqe_changing_sigma_errs.png', bbox_inches='tight')
+plt.clf()
+
+for idx, ele in enumerate(sigma_runs):
+
+    plt.plot(depths, ele, linewidth = 2, color = colours[idx], label = r"$\pi$"+"/%s"%fracs[idx])
+plt.xticks(size = tick_size)
+plt.yticks(size = tick_size)
+
+plt.ylabel(r'$N_{runs}$', fontsize = label_size)
+plt.xlabel(r'$D$', fontsize = label_size)
+plt.legend(fontsize = legend_size)
+
+# plt.ylim(5*10**-4, 1.5*10**-3)
+
+plt.grid(True)
+plt.savefig('avqe/plots/avqe_changing_sigma_runs.png', bbox_inches='tight')
+plt.clf()
+
+for idx, ele in enumerate(sigma_failures):
+    
+    plt.plot(depths, ele, linewidth = 2, color = colours[idx], label = r"$\pi$"+"/%s"%fracs[idx])
+plt.xticks(size = tick_size)
+plt.yticks(size = tick_size)
+
+plt.ylabel(r'$N_{runs}$', fontsize = label_size)
+plt.xlabel(r'$D$', fontsize = label_size)
+plt.legend(fontsize = legend_size)
+
+# plt.ylim(5*10**-4, 1.5*10**-3)
+
+plt.grid(True)
+plt.savefig('avqe/plots/avqe_changing_sigma_fails.png', bbox_inches='tight')
 plt.clf()
