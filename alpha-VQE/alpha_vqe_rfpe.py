@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from numpy import pi
-from math import cos, sin, log, exp
+from math import cos, sin, log, exp, sqrt
 import warnings
 import pickle
 
@@ -48,14 +48,14 @@ class Alpha_VQE():
     VALUEERROR for alpha <0 or >1
     """
 
-    def __init__(self, phi, nSamples, 
-                accuracy=5*10**-3, 
-                alpha=0, 
-                sigma=pi/4, 
-                max_shots=10**4, 
-                update=1
-        ):
-        
+    def __init__(self, phi, nSamples,
+                 accuracy=5*10**-3,
+                 alpha=0,
+                 sigma=pi/4,
+                 max_shots=10**4,
+                 update=1
+                 ):
+
         self.phi = phi
         self.nSamples = nSamples
         self.accuracy = accuracy
@@ -174,6 +174,79 @@ class Alpha_VQE():
 
         return(Expectation, Std)
 
+    def update_directional(self, mu, M, theta, measurement_result, prior_samples):
+        d = measurement_result
+
+        max_prob = 0
+        for s in prior_samples:
+            p = self.probability(measurement_result, M, theta, s)
+            if p > max_prob:
+                max_prob = p
+
+        Na = 0
+        xinc = 0
+        yinc = 0
+        for s in prior_samples:
+            x = np.random.normal(mu, self.sigma)
+            u = np.random.uniform(0, 1)
+            if self.probability(d, M, theta, s) >= max_prob*u:
+                xinc += cos(x)
+                yinc += sin(x)
+                Na += 1
+        xinc /= Na
+        yinc /= Na
+
+        Expectation = np.arctan(yinc / xinc)
+        Std = np.sqrt(
+            log(1.00001 / np.sqrt(xinc**2 + yinc**2))
+        )
+        # if Std == 0 :
+        #     print(xinc, yinc, Na)
+        #     print(xinc**2 + yinc**2)
+        return(Expectation, Std)
+
+
+    def update_accumulators(self, mu, M, theta, measurement_result, prior_samples):
+        d = measurement_result
+
+        max_prob = 0
+        for s in prior_samples:
+            p = self.probability(measurement_result, M, theta, s)
+            if p > max_prob:
+                max_prob = p
+
+        Na = 0
+        mu_inc = 0
+        mu_inc_prime = 0
+        v_inc = 0
+        v_inc_prime = 0
+
+        for s in prior_samples:
+            x = np.random.normal(mu, self.sigma)
+            x = x % (2*pi)
+            x_prime = (x + pi) % (2*pi)
+            u = np.random.uniform(0, 1)
+            if self.probability(d, M, theta, s) >= max_prob*u:
+                mu_inc += x
+                v_inc += x**2
+
+                mu_inc_prime += x_prime
+                v_inc_prime += x_prime**2
+
+                Na += 1
+
+        if Na == 1:
+            return(mu, self.sigma*1.1)
+        else:
+            print(mu_inc, v_inc)
+            Expectation = mu_inc / Na
+            f1 = sqrt((v_inc - mu_inc**2) / (Na - 1))
+            f2 = sqrt((v_inc_prime - mu_inc_prime**2) / (Na - 1))
+            
+            Std = min(f1, f2)
+
+            return(Expectation, Std)
+
     def estimate_phase(self):
         mu = random.uniform(-pi, pi)
 
@@ -226,16 +299,18 @@ class Alpha_VQE():
         #     f"  Value estimated: {estimated:.5f}\n  True value: {true:.5f}"
         #     + f"\n  Error: {error:.5f}\n  Number of runs: {run}"
         # )
-    
+
     def run_experiment(self, experiment_number):
         mu = random.uniform(-pi, pi)
 
         run = 0
         data = []
         while run < experiment_number:
+            if self.sigma < 10**-20:
+                self.sigma = 10**-20
             M = max(1, np.ceil(1.25 / self.sigma**self.alpha))
-            
-            theta = mu - self.sigma
+
+            theta = np.random.normal(mu, self.sigma)  # mu - self.sigma
 
             prob_0 = self.probability(0, M, theta, self.phi)
 
@@ -253,17 +328,15 @@ class Alpha_VQE():
             elif self.update == 1:
                 prior_samples = np.random.normal(mu, self.sigma, self.nSamples)
 
-                mu, sigma = self.update_prior_rescaled(
-                    M, theta, measurement_result, prior_samples)
+                # mu, sigma = self.update_directional(mu, M, theta, measurement_result, prior_samples)
 
+                mu, sigma = self.update_prior_rescaled(M, theta, measurement_result, prior_samples)
             else:
                 mu, sigma = self.update_exact(mu, M, theta, measurement_result)
 
             self.sigma = sigma
 
-            
-
-            estimated = abs(cos(mu%(2*pi)/2))
+            estimated = abs(cos(mu % (2*pi)/2))
 
             true = abs(cos(self.phi/2))
 
@@ -272,4 +345,3 @@ class Alpha_VQE():
             run += 1
 
         return(data)
-

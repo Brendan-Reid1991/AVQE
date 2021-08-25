@@ -138,7 +138,7 @@ class Alpha_VQE():
 
         for s in prior_samples:
             p = self.probability(measurement_result, M, theta, s)
-            if random.uniform(0, 1) < p/max_prob:
+            if random.uniform(0, 1)*max_prob < p:
                 accepted.append(s)
 
         if len(accepted) < 2:
@@ -233,7 +233,9 @@ class Alpha_VQE():
         run = 0
         data = []
         while run < experiment_number:
-            M = int(np.round(1/self.sigma**self.alpha))
+            if self.sigma < 10**-20:
+                self.sigma = 10**-20
+            M = max(1, int(np.round(1/self.sigma**self.alpha)))
             theta = mu - self.sigma
 
             prob_0 = self.probability(0, M, theta, self.phi)
