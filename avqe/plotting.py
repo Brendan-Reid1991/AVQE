@@ -95,10 +95,11 @@ for x in fracs:
 
     data = pickle.load(bare)
     _void, errs, runs, fails = transpose(data)
-
+    
     sigma_errs.append(errs)
     sigma_runs.append(runs)
-    sigma_failures.append(fails)
+    sigma_failures.append(fails/1000)
+    
 
 for idx, ele in enumerate(sigma_errs):
     plt.plot(depths, ele, linewidth = 2, color = colours[idx], label = r"$\pi$"+"/%s"%fracs[idx])
@@ -124,7 +125,8 @@ plt.yticks(size = tick_size)
 plt.ylabel(r'$N_{runs}$', fontsize = label_size)
 plt.xlabel(r'$D$', fontsize = label_size)
 plt.legend(fontsize = legend_size)
-
+plt.yscale("log")
+plt.xscale("log")
 # plt.ylim(5*10**-4, 1.5*10**-3)
 
 plt.grid(True)
@@ -133,14 +135,15 @@ plt.clf()
 
 for idx, ele in enumerate(sigma_failures):
     
-    plt.plot(depths, ele, linewidth = 2, color = colours[idx], label = r"$\pi$"+"/%s"%fracs[idx])
+    plt.plot(depths, np.asarray(ele), linewidth = 2, color = colours[idx], label = r"$\pi$"+"/%s"%fracs[idx])
 plt.xticks(size = tick_size)
 plt.yticks(size = tick_size)
 
 plt.ylabel(r'$N_{runs}$', fontsize = label_size)
 plt.xlabel(r'$D$', fontsize = label_size)
 plt.legend(fontsize = legend_size)
-
+plt.yscale("log")
+plt.xscale("log")
 # plt.ylim(5*10**-4, 1.5*10**-3)
 
 plt.grid(True)

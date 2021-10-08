@@ -52,7 +52,7 @@ class AVQE():
 
     def __init__(self, phi, max_unitaries,
                  accuracy=5*10**-3,
-                 sigma=pi/4,
+                 sigma=pi/2,
                  max_shots=10**5,
                  state=0):
 
@@ -162,10 +162,10 @@ class AVQE():
 
         mu = random.uniform(-pi, pi)
         run = 0
-        theta = mu - self.sigma
+        theta = (mu - self.sigma)*(1 - self.state)
         failed = 0
 
-        while round(self.sigma, 5) > self.accuracy:
+        while self.sigma > self.accuracy:
 
             M = min(
                 max(1, np.floor(1/2 + 1/self.sigma)), self.max_unitaries
@@ -181,7 +181,7 @@ class AVQE():
             mu, sigma = self.update_prior(mu, M, theta, measurement_result)
 
             self.sigma = sigma
-            theta = mu - self.sigma
+            theta = (mu - self.sigma)*(1 - self.state)
 
             run += 1
             if run > self.max_shots:

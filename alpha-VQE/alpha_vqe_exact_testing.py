@@ -7,7 +7,7 @@ from progress.bar import FillingCirclesBar, FillingSquaresBar
 import os
 import pickle
 
-alpha_values = np.linspace(0, 1, 21)
+alpha_values = np.linspace(0, 1, 11)
 sample_sizes = [100, 500, 1000]
 mRange = 10000
 
@@ -22,7 +22,7 @@ for al in alpha_values:
 
     while solutions < mRange:
         phi = random.uniform(-pi, pi)
-        a = Alpha_VQE(phi=phi, nSamples=1, sigma = pi/2, alpha = al, update = 2, max_shots=2*10**5)
+        a = Alpha_VQE(phi=phi, nSamples=1, sigma = pi/4, alpha = al, update = 2, max_shots=2*10**5)
         err, run, failed = a.estimate_phase()
         if failed == 1:
             failures += 1
@@ -33,14 +33,18 @@ for al in alpha_values:
     print(f"  Ending :: Failure rate {failures}."
         f"\n    Of {mRange} runs, this implies failure rate of" 
         f" {100*failures / (failures + mRange):.2f}%%")
+    
     exact_results.append([
         np.median(transpose(temp)[0]), np.median(transpose(temp)[1]), failures / (mRange + failures)
     ])    
     print(
-        f"  Average number of runs: {np.median(transpose(temp)[1])}"
+        f"  Average number of runs: {np.mean(transpose(temp)[1])}"
     )
 # bar.finish()
+import matplotlib.pyplot as plt
 
+# plt.plot(exact_results[0])
+# plt.show()
 g = open("alpha-VQE/data/alpha_exact_alpha", "wb")
 pickle.dump(exact_results, g)
 # print(exact_results)

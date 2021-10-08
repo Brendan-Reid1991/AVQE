@@ -19,18 +19,23 @@ legend_size = 15
 def transpose(L):
     return(list(map(list,zip(*L))))
 
-alpha_values = np.linspace(0, 1, 21)
+alpha_values = np.linspace(0, 1, 11)
 sample_sizes = [100, 500, 1000]
 
 sample_size_errs = []
 sample_size_runs = []
 for ss in sample_sizes:
-    in1 = open("alpha-VQE/data/alpha_vqe_ss%s_alpha"%ss, "rb")
+    in1 = open("alpha-VQE/data/alpha_vqe_ss%s"%ss, "rb")
     in2 = pickle.load(in1)
     errs, runs = transpose(in2)[1], transpose(in2)[2]
 
     sample_size_errs.append(errs)
     sample_size_runs.append(runs)
+
+sample_size_runs[1] = sample_size_runs[1][11:22]
+sample_size_runs[2] = sample_size_runs[2][22::]
+sample_size_errs[1] = sample_size_errs[1][11:22]
+sample_size_errs[2] = sample_size_errs[2][22::]
 
 in_exact = open("alpha-VQE/data/alpha_exact_alpha", "rb")
 in_exact_loaded = pickle.load(in_exact)
@@ -46,7 +51,7 @@ for idx, ss in enumerate(sample_sizes):
 plt.grid(True)
 plt.xticks(size = tick_size)
 plt.yticks(size = tick_size)
-plt.ylabel(r'$|\phi - \mu|$', fontsize = label_size)
+plt.ylabel(r'Median Error', fontsize = label_size)
 plt.xlabel(r'$\alpha$', fontsize = label_size)
 plt.legend(fontsize = legend_size, title = "Sample Sizes")
 plt.savefig("alpha-VQE/plots/Increasing_Sample_Size_Errors.pdf", bbox_inches = 'tight')
@@ -97,39 +102,39 @@ plt.grid(True)
 plt.xticks(size = tick_size)
 plt.yticks(size = tick_size)
 plt.yscale("log")
-plt.ylabel(r'No. of Updates', fontsize = label_size)
+plt.ylabel(r'Circuit Measurements', fontsize = label_size)
 plt.xlabel(r'$\alpha$', fontsize = label_size)
-plt.legend(fontsize = legend_size, title = "Sample Sizes", title_fontsize = legend_title_size, bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend(fontsize = legend_size, title = "Sample Sizes", title_fontsize = legend_title_size)#, bbox_to_anchor=(1.05, 1), loc='upper left')
 
 fig.savefig("alpha-VQE/plots/Increasing_Sample_Size_Runs.pdf", bbox_inches = 'tight')
 plt.clf()
 
 
-in_exact = open("alpha-VQE/data/alpha_exact_alpha_new_M", "rb")
-in_exact_loaded = pickle.load(in_exact)
-errs_exactM, runs_exactM = transpose(in_exact_loaded)[0], transpose(in_exact_loaded)[1]
+# in_exact = open("alpha-VQE/data/alpha_exact_alpha_new_M", "rb")
+# in_exact_loaded = pickle.load(in_exact)
+# errs_exactM, runs_exactM = transpose(in_exact_loaded)[0], transpose(in_exact_loaded)[1]
 
 
-plt.plot(alpha_values, errs_exact, linewidth = 2, color = "gray", label = "Exact")
-plt.plot(alpha_values, errs_exactM,  linewidth = 2, color = "black", label = "Exact_Alt")
+# plt.plot(alpha_values, errs_exact, linewidth = 2, color = "gray", label = "Exact")
+# plt.plot(alpha_values, errs_exactM,  linewidth = 2, color = "black", label = "Exact_Alt")
 
-plt.grid(True)
-plt.xticks(size = tick_size)
-plt.yticks(size = tick_size)
-plt.ylabel(r'$|\phi - \mu|$', fontsize = label_size)
-plt.xlabel(r'$\alpha$', fontsize = label_size)
-plt.legend(fontsize = legend_size, title = "")
-plt.savefig("alpha-VQE/plots/Exact_Errors_Compare.pdf", bbox_inches = 'tight')
-plt.clf()
+# plt.grid(True)
+# plt.xticks(size = tick_size)
+# plt.yticks(size = tick_size)
+# plt.ylabel(r'$|\phi - \mu|$', fontsize = label_size)
+# plt.xlabel(r'$\alpha$', fontsize = label_size)
+# plt.legend(fontsize = legend_size, title = "")
+# plt.savefig("alpha-VQE/plots/Exact_Errors_Compare.pdf", bbox_inches = 'tight')
+# plt.clf()
 
-plt.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
-plt.plot(alpha_values, runs_exactM, linewidth = 2, color = "black", label = "Exact_Alt")
+# plt.plot(alpha_values, runs_exact, linewidth = 2, color = "gray", label = "Exact")
+# plt.plot(alpha_values, runs_exactM, linewidth = 2, color = "black", label = "Exact_Alt")
 
-plt.grid(True)
-plt.xticks(size = tick_size)
-plt.yticks(size = tick_size)
-plt.ylabel(r'$|\phi - \mu|$', fontsize = label_size)
-plt.xlabel(r'$\alpha$', fontsize = label_size)
-plt.legend(fontsize = legend_size, title = "")
-plt.savefig("alpha-VQE/plots/Exact_Runs_Compare.pdf", bbox_inches = 'tight')
-plt.clf()
+# plt.grid(True)
+# plt.xticks(size = tick_size)
+# plt.yticks(size = tick_size)
+# plt.ylabel(r'$|\phi - \mu|$', fontsize = label_size)
+# plt.xlabel(r'$\alpha$', fontsize = label_size)
+# plt.legend(fontsize = legend_size, title = "")
+# plt.savefig("alpha-VQE/plots/Exact_Runs_Compare.pdf", bbox_inches = 'tight')
+# plt.clf()

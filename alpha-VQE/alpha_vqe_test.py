@@ -7,16 +7,33 @@ from progress.bar import FillingCirclesBar, FillingSquaresBar
 import os
 import pickle
 
+
+# errs = []
+# runs = []
+# for _ in range(10):
+#     a = Alpha_VQE(phi=random.uniform(-pi, pi), accuracy = 0.005, sigma=pi/4, nSamples=1000, alpha = 0, max_shots = 10**8)
+#     err, run, f, sig = a.estimate_phase()
+#     print(run)
+#     errs.append(err)
+#     runs.append(run)
+
+# print(np.median(errs))
+# print(np.mean(errs))
+
+# print(np.median(runs))
+# exit()
+
 alpha_values = np.linspace(0, 1, 11)
 sample_sizes = [100, 500, 1000]
 mRange = 10000
 
 # bar = FillingSquaresBar("Running simulation", max = mRange*len(sample_sizes)*len(alpha_values), suffix = '%(percent).2f%% [%(elapsed_td)s]')
 
-results = []
+
 for ss in sample_sizes:
+    results = []
     print(f"Beginning sample size {ss}")
-    save_here = open("alpha-VQE/data/alpha_vqe_ss%s_alpha"%ss, "wb")
+    save_here = open("alpha-VQE/data/alpha_vqe_ss%s"%ss, "wb")
     for al in alpha_values:
         print(f"  -Starting simulation on alpha = {al}")
         temp = []
@@ -24,7 +41,7 @@ for ss in sample_sizes:
         failures = 0
         while solutions < mRange:
             phi = random.uniform(-pi, pi)
-            a = Alpha_VQE(phi=phi, accuracy = 0.005, sigma=pi/2, nSamples=ss, alpha = al, max_shots = 10**6)
+            a = Alpha_VQE(phi=phi, accuracy = 0.005, sigma=pi/4, nSamples=ss, alpha = al, max_shots = 10**6)
             err, run, f = a.estimate_phase()
 
             if f == 1:

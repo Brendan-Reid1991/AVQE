@@ -45,7 +45,7 @@ class Alpha_VQE():
     Raises
     -------
     WARNINGS for poorly chosen values of accuracy, nSamples and sigma
-    VALUEERROR for alpha <0 or >1
+    VALUE ERROR for alpha <0 or >1
     """
 
     def __init__(self, phi, nSamples,
@@ -138,7 +138,7 @@ class Alpha_VQE():
 
         for s in prior_samples:
             p = self.probability(measurement_result, M, theta, s)
-            if random.uniform(0, 1) < p/max_prob:
+            if random.uniform(0, 1)*max_prob < p:
                 accepted.append(s)
 
         if len(accepted) < 2:

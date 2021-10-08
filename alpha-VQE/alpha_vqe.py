@@ -180,7 +180,7 @@ class Alpha_VQE():
         run = 0
         failed = 0
 
-        while round(self.sigma, 5) > self.accuracy:
+        while self.sigma > self.accuracy:
             M = max(1, int(round(1 / self.sigma**self.alpha)))
             theta = mu - self.sigma
 
