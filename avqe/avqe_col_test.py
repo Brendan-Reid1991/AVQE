@@ -11,7 +11,7 @@ from numpy.core.fromnumeric import transpose
 acc = 0.005
 alpha_values = np.linspace(0, 1, 11)
 max_depth_values = [np.round(1/acc**al) for al in alpha_values]
-max_depth_values = np.linspace(1, 1000, 100, dtype=int)
+# max_depth_values = np.linspace(1, 1000, 100, dtype=int)
 
 mRange = 2500
 
@@ -50,5 +50,5 @@ for max_d in max_depth_values:
     )
     bar.finish()
 # print(results)
-f = open("avqe/data/avqe_col_test_high_max_m", "wb")
+f = open("avqe/data/avqe_col_test", "wb")
 pickle.dump(results, f)

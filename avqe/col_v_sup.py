@@ -43,13 +43,16 @@ for al in alpha_values:
 
 plt.plot(depths, s_errs, linewidth = 2, color = colours[0], label = "Superposition")
 plt.plot(depths, c_errs, linewidth = 2, color = colours[1], label = "Collapsed")
-plt.xticks(size = tick_size)
+
 plt.yticks(size = tick_size)
 
 
 
 plt.ylabel(r'Median Error', fontsize = label_size)
 plt.xlabel(r'$D$', fontsize = label_size)
+plt.xscale('log')
+plt.xticks(size = tick_size)
+
 plt.ylim(0, 0.0015)
 plt.legend(fontsize = legend_size)
 
@@ -60,7 +63,7 @@ plt.clf()
 
 plt.plot(depths, s_runs, linewidth = 2, color = colours[0], label = "Superposition")
 plt.plot(depths, c_runs, linewidth = 2, color = colours[1], label = "Collapsed")
-plt.xticks(size = tick_size)
+plt.xticks(depths, size = tick_size)
 plt.yticks(size = tick_size)
 
 
@@ -77,7 +80,7 @@ plt.clf()
 
 
 plt.plot(depths, np.asarray(s_runs) / np.asarray(c_runs), linewidth = 2, color = colours[0])
-plt.xticks(size = tick_size)
+plt.xticks(depths, size = tick_size)
 plt.yticks(size = tick_size)
 
 
@@ -86,7 +89,7 @@ plt.ylabel(r'Sup / Col ratio of measurements', fontsize = label_size)
 plt.xlabel(r'$D$', fontsize = label_size)
 
 
-plt.xscale('log')
+# plt.xscale('log')
 plt.grid(True)
 plt.savefig('avqe/plots/avqe_vs_runs_ratios.pdf', bbox_inches='tight')
 plt.clf()

@@ -20,7 +20,7 @@ def transpose(L):
     return(list(map(list,zip(*L))))
 
 alpha_values = np.linspace(0, 1, 11)
-sample_sizes = [100, 500, 1000]
+sample_sizes = [100, 500]
 
 sample_size_errs = []
 sample_size_runs = []
@@ -32,10 +32,7 @@ for ss in sample_sizes:
     sample_size_errs.append(errs)
     sample_size_runs.append(runs)
 
-sample_size_runs[1] = sample_size_runs[1][11:22]
-sample_size_runs[2] = sample_size_runs[2][22::]
-sample_size_errs[1] = sample_size_errs[1][11:22]
-sample_size_errs[2] = sample_size_errs[2][22::]
+
 
 in_exact = open("alpha-VQE/data/alpha_exact_alpha", "rb")
 in_exact_loaded = pickle.load(in_exact)

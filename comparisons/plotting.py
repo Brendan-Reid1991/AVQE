@@ -37,13 +37,13 @@ plt.yticks(size = tick_size)
 
 plt.ylim(0.0005, 0.0015)
 
-plt.ylabel(r'$|\phi - \mu|^2$', fontsize = label_size)
+plt.ylabel(r'Median Error', fontsize = label_size)
 plt.xlabel(r'$\alpha$', fontsize = label_size)
 plt.legend(fontsize = legend_size)
 
 
 plt.grid(True)
-plt.savefig('comparisons/plots/avqe_vs_alpha_error.png', bbox_inches='tight')
+plt.savefig('comparisons/plots/avqe_vs_alpha_error.pdf', bbox_inches='tight')
 plt.clf()
 
 plt.plot(alpha_values, avqe_runs, linewidth = 2, color = colours[0], label = "AVQE")
@@ -60,7 +60,7 @@ plt.legend(fontsize = legend_size)
 plt.yscale("log")
 
 plt.grid(True)
-plt.savefig('comparisons/plots/avqe_vs_alpha_runs.png', bbox_inches='tight')
+plt.savefig('comparisons/plots/avqe_vs_alpha_runs.pdf', bbox_inches='tight')
 plt.clf()
 
 ratio_list = np.asarray(avqe_runs)/np.asarray(alpha_runs)
@@ -68,8 +68,8 @@ xnew = np.linspace(min(alpha_values), max(alpha_values), 500)
 
 splt = make_interp_spline(alpha_values, ratio_list, k=1)
 ratio_smooth = splt(xnew)
-plt.plot(alpha_values, ratio_list)
-# plt.plot(xnew, ratio_smooth, linewidth = 2, color = colours[2])
+# plt.plot(alpha_values, ratio_list)
+plt.plot(xnew, ratio_smooth, linewidth = 2, color = colours[2])
 # plt.plot(alpha_values[::2], , linewidth = 2, color = colours[1], label = r'$\alpha$VQE - Exact')
 plt.xticks(size = tick_size)
 plt.yticks(size = tick_size)
@@ -83,5 +83,5 @@ plt.xlabel(r'$\alpha$', fontsize = label_size)
 
 
 plt.grid(True)
-plt.savefig('comparisons/plots/ratio.png', bbox_inches='tight')
+plt.savefig('comparisons/plots/ratio.pdf', bbox_inches='tight')
 plt.clf()

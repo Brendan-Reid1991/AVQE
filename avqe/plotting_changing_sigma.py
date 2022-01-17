@@ -23,29 +23,33 @@ def transpose(L):
 
 sigma_values = [pi/16, pi/8, pi/4, pi/2]
 alpha_values = np.linspace(0, 1, 11)
+label = ["pi-16", "pi-8", "pi-4", "pi-2"]
+plt_label = ["16", "8", "4", "2"]
 
 errors = []
 failures = []
-for sigma in sigma_values:
-    f = open("avqe/data/avqe_sup_test_sigma_%.4d"%sigma, "rb")
+for ele in label:
+    f = open("avqe/data/avqe_sup_test_sigma_%s"%ele, "rb")
     data = pickle.load(f)
     errors.append(transpose(data)[1])
-    failures.append(transpose(data)[2])
+    failures.append(transpose(data)[3])
 
 for idx, ele in enumerate(errors):
-    plt.plot(alpha_values, ele, label = r'$\sigma=$'+'%s'%sigma_values[idx])
+    plt.plot(alpha_values, ele, label = r'$\sigma=\pi/$'+'%s'%plt_label[idx])
 
 plt.ylabel('Median error')
 plt.xlabel(r'$\alpha$')
-plt.legend(title=r'$\sigma$')
+plt.legend(title=r'$\sigma$', title_fontsize = legend_title_size)
 plt.savefig('sigma_errors.pdf', bbox_inches = 'tight')
+plt.grid(True)
 plt.clf()
 
 for idx, ele in enumerate(failures):
-    plt.plot(alpha_values, ele, label = r'$\sigma=$'+'%s'%sigma_values[idx])
+    plt.plot(alpha_values, ele, label = r'$\sigma=\pi/$%s'%plt_label[idx])
 
 plt.ylabel('Failure rate')
 plt.xlabel(r'$\alpha$')
-plt.legend(title=r'$\sigma$')
+plt.legend(title=r'$\sigma$', title_fontsize = legend_title_size)
+plt.grid(True)
 plt.savefig('sigma_fails.pdf', bbox_inches = 'tight')
 plt.clf()
